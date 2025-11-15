@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScooterRide Kenya - Easy Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #FF8C00;
+            --primary-dark: #E67E00;
+            --secondary: #000000;
+            --accent: #FFA500;
+            --light: #FFF5E6;
+            --danger: #FF4444;
+            --success: #00C851;
+            --warning: #FFBB33;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background-color: var(--secondary);
+            color: white;
+            padding: 20px 0;
+        }
+        
+        .logo {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 2px solid var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .logo p {
+            font-size: 0.8rem;
+            color: #ccc;
+            margin-top: 5px;
+        }
+        
+        .nav-links {
+            list-style: none;
+        }
+        
+        .nav-links li {
+            padding: 15px 25px;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+        
+        .nav-links li:hover {
+            background-color: rgba(255, 140, 0, 0.1);
+        }
+        
+        .nav-links li.active {
+            background-color: rgba(255, 140, 0, 0.2);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-links i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .header h2 {
+            color: var(--secondary);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid var(--primary);
+        }
+        
+        /* Instruction Box */
+        .instruction-box {
+            background-color: var(--light);
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        
+        .instruction-box h3 {
+            color: var(--secondary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .instruction-box h3 i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        
+        .instruction-steps {
+            padding-left: 20px;
+        }
+        
+        .instruction-steps li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
+        /* Dashboard Cards */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-top: 4px solid var(--primary);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-title {
+            font-size: 0.9rem;
+            color: #777;
+        }
+        
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            background-color: var(--primary);
+        }
+        
+        .card-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--secondary);
+        }
+        
+        .card-change {
+            font-size: 0.8rem;
+            color: var(--success);
+        }
+        
+        .card-change.negative {
+            color: var(--danger);
+        }
+        
+        /* Data Entry Form */
+        .data-entry {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .form-title {
+            margin-bottom: 20px;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+        }
+        
+        .form-title i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .form-help {
+            font-size: 0.8rem;
+            color: #777;
+            margin-top: 5px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Charts Section */
+        .charts {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .chart-title {
+            margin-bottom: 15px;
+            color: var(--secondary);
+        }
+        
+        /* Recent Sales Table */
+        .recent-sales {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .table th, .table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .table th {
+            background-color: #f8f9fa;
+            color: var(--secondary);
+            font-weight: 600;
+        }
+        
+        .table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status.completed {
+            background-color: rgba(0, 200, 81, 0.2);
+            color: var(--success);
+        }
+        
+        .status.pending {
+            background-color: rgba(255, 187, 51, 0.2);
+            color: var(--warning);
+        }
+        
+        /* Weather Alert */
+        .weather-alert {
+            background-color: #E3F2FD;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        
+        .weather-alert h4 {
+            color: #0D47A1;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .weather-alert h4 i {
+            margin-right: 10px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .charts {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .nav-links {
+                display: flex;
+                justify-content: space-around;
+                flex-wrap: wrap;
+            }
+            
+            .nav-links li {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1><i class="fas fa-motorcycle"></i> ScooterRide Kenya</h1>
+                <p>Juja City Mall • Weekends & Holidays</p>
+            </div>
+            <ul class="nav-links">
+                <li class="active"><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="#"><i class="fas fa-ticket-alt"></i> Enter Today's Sales</a></li>
+                <li><a href="#"><i class="fas fa-users"></i> Employees</a></li>
+                <li><a href="#"><i class="fas fa-motorcycle"></i> Scooters</a></li>
+                <li><a href="#"><i class="fas fa-piggy-bank"></i> Savings</a></li>
+                <li><a href="#"><i class="fas fa-cloud-sun-rain"></i> Weather</a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h2>Business Dashboard</h2>
+                <div class="user-info">
+                    <img src="https://ui-avatars.com/api/?name=Business+Owner&background=FF8C00&color=fff" alt="User">
+                    <span>Business Owner</span>
+                </div>
+            </div>
+            
+            <!-- Instruction Box -->
+            <div class="instruction-box">
+                <h3><i class="fas fa-info-circle"></i> HOW TO USE THIS DASHBOARD</h3>
+                <ol class="instruction-steps">
+                    <li><strong>Enter Daily Sales:</strong> Click "Enter Today's Sales" in the menu to record ticket sales</li>
+                    <li><strong>Track Money:</strong> View your earnings and savings growth on the dashboard</li>
+                    <li><strong>Check Weather:</strong> Always check the weather section before opening</li>
+                    <li><strong>View Reports:</strong> See business performance charts and tables below</li>
+                </ol>
+            </div>
+            
+            <!-- Weather Alert -->
+            <div class="weather-alert">
+                <h4><i class="fas fa-cloud-rain"></i> WEATHER ALERT: Saturday Forecast</h4>
+                <p>Expected rain from 2 PM to 5 PM. Plan for reduced operations during these hours.</p>
+            </div>
+            
+            <!-- Dashboard Cards -->
+            <div class="cards">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Today's Revenue</div>
+                        <div class="card-icon"><i class="fas fa-money-bill-wave"></i></div>
+                    </div>
+                    <div class="card-value">KSH 12,400</div>
+                    <div class="card-change">+18% from last week</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Total Tickets Sold</div>
+                        <div class="card-icon"><i class="fas fa-ticket-alt"></i></div>
+                    </div>
+                    <div class="card-value">48</div>
+                    <div class="card-change">Normal: 34 | Happy Time: 14</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Business Savings</div>
+                        <div class="card-icon"><i class="fas fa-piggy-bank"></i></div>
+                    </div>
+                    <div class="card-value">KSH 84,250</div>
+                    <div class="card-change">+15% this month</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Available Scooters</div>
+                        <div class="card-icon"><i class="fas fa-motorcycle"></i></div>
+                    </div>
+                    <div class="card-value">24/30</div>
+                    <div class="card-change">6 in maintenance</div>
+                </div>
+            </div>
+            
+            <!-- Data Entry Form -->
+            <div class="data-entry">
+                <h3 class="form-title"><i class="fas fa-ticket-alt"></i> ENTER TODAY'S TICKET SALES</h3>
+                
+                <div class="instruction-box">
+                    <h3><i class="fas fa-list-ol"></i> STEP-BY-STEP INSTRUCTIONS</h3>
+                    <ol class="instruction-steps">
+                        <li><strong>Select Date:</strong> Choose the date you're recording sales for</li>
+                        <li><strong>Enter Normal Tickets (300 KSH):</strong> Count how many Normal tickets sold</li>
+                        <li><strong>Enter Happy Time Tickets (200 KSH):</strong> Count how many Happy Time tickets sold</li>
+                        <li><strong>Select Employee:</strong> Choose who handled the sales</li>
+                        <li><strong>Click "Save Sales":</strong> This updates all charts automatically</li>
+                        <li><strong>Your boss will see the update immediately!</strong></li>
+                    </ol>
+                </div>
+                
+                <form id="saleForm">
+                    <div class="form-group">
+                        <label for="saleDate">1. SELECT DATE</label>
+                        <input type="date" class="form-control" id="saleDate" required>
+                        <div class="form-help">Choose the day you're recording sales for</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="normalTickets">2. NORMAL TICKETS (300 KSH each)</label>
+                        <input type="number" class="form-control" id="normalTickets" min="0" value="0" required>
+                        <div class="form-help">Enter how many Normal tickets were sold today</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="happyTickets">3. HAPPY TIME TICKETS (200 KSH each)</label>
+                        <input type="number" class="form-control" id="happyTickets" min="0" value="0" required>
+                        <div class="form-help">Enter how many Happy Time tickets were sold today</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="salesPerson">4. SELECT EMPLOYEE</label>
+                        <select class="form-control" id="salesPerson" required>
+                            <option value="">Choose who sold tickets</option>
+                            <option value="john">John Kamau</option>
+                            <option value="mary">Mary Wanjiku</option>
+                            <option value="peter">Peter Otieno</option>
+                            <option value="susan">Susan Akinyi</option>
+                        </select>
+                        <div class="form-help">This helps track employee performance</div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-save"></i> SAVE TODAY'S SALES
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Charts Section -->
+            <div class="charts">
+                <div class="chart-container">
+                    <h3 class="chart-title">Revenue Progress</h3>
+                    <canvas id="revenueChart"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                    <h3 class="chart-title">Ticket Sales Breakdown</h3>
+                    <canvas id="ticketChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Recent Sales Table -->
+            <div class="recent-sales">
+                <h3 class="chart-title">Recent Ticket Sales</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Day</th>
+                            <th>Normal Tickets</th>
+                            <th>Happy Time Tickets</th>
+                            <th>Total Revenue</th>
+                            <th>Employee</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2023-10-14</td>
+                            <td>Saturday</td>
+                            <td>28</td>
+                            <td>16</td>
+                            <td>KSH 11,200</td>
+                            <td>John Kamau</td>
+                        </tr>
+                        <tr>
+                            <td>2023-10-13</td>
+                            <td>Friday (Holiday)</td>
+                            <td>22</td>
+                            <td>8</td>
+                            <td>KSH 8,200</td>
+                            <td>Mary Wanjiku</td>
+                        </tr>
+                        <tr>
+                            <td>2023-10-07</td>
+                            <td>Saturday</td>
+                            <td>31</td>
+                            <td>12</td>
+                            <td>KSH 11,700</td>
+                            <td>Peter Otieno</td>
+                        </tr>
+                        <tr>
+                            <td>2023-10-06</td>
+                            <td>Friday (Holiday)</td>
+                            <td>19</td>
+                            <td>5</td>
+                            <td>KSH 6,700</td>
+                            <td>Susan Akinyi</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'],
+                datasets: [{
+                    label: 'Monthly Revenue (KSH)',
+                    data: [65000, 72000, 68400, 81000, 95000, 102000],
+                    borderColor: '#FF8C00',
+                    backgroundColor: 'rgba(255, 140, 0, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                }
+            }
+        });
+        
+        // Ticket Sales Chart
+        const ticketCtx = document.getElementById('ticketChart').getContext('2d');
+        const ticketChart = new Chart(ticketCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Normal Tickets (300 KSH)', 'Happy Time (200 KSH)'],
+                datasets: [{
+                    data: [65, 35],
+                    backgroundColor: [
+                        '#FF8C00',
+                        '#000000'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+        
+        // Form submission handler
+        document.getElementById('saleForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const date = document.getElementById('saleDate').value;
+            const normal = document.getElementById('normalTickets').value;
+            const happy = document.getElementById('happyTickets').value;
+            const employee = document.getElementById('salesPerson').value;
+            
+            // Calculate revenue
+            const revenue = (normal * 300) + (happy * 200);
+            
+            // Show success message
+            alert(`SUCCESS! Sales recorded for ${date}\n\nNormal Tickets: ${normal}\nHappy Time Tickets: ${happy}\nTotal Revenue: KSH ${revenue}\nEmployee: ${employee}\n\nYour boss can now see this update!`);
+            
+            // In a real app, you would save this data to a database
+            // For this demo, we'll just reset the form
+            this.reset();
+        });
+        
+        // Set today's date as default
+        document.getElementById('saleDate').valueAsDate = new Date();
+    </script>
+</body>
+</html>
